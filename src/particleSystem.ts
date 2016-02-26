@@ -7,6 +7,7 @@ export interface ParticleSystemArgs{
   maxLife?: number | ScalarSpreadArg;
   emitterMaxLife?: number;
   maxParticles: number;
+  emitterElem?: any;
 
   position?: Vector2 | VectorSpreadArg;
   velocity?: Vector2 | VectorSpreadArg;
@@ -38,6 +39,7 @@ export class ParticleSystem{
   emitterMaxLife: number;
   dying: boolean = false;
   alive: boolean = true;
+  emitterElem: any;
 
   position: VectorSpread;
   velocity: VectorSpread;
@@ -55,6 +57,7 @@ export class ParticleSystem{
     this.maxLife = args.maxLife ? new ScalarSpread(args.maxLife) : new ScalarSpread(5);
     this.maxParticles = args.maxParticles || 100;
     this.emitterMaxLife = args.emitterMaxLife ? args.emitterMaxLife : null;
+    this.emitterElem = args.emitterElem || $("body");
 
     this.accelerationField = args.accelerationField;
 
@@ -102,7 +105,8 @@ export class ParticleSystem{
         velocity:     this.velocity     && this.velocity.sample(),
         acceleration: this.acceleration && this.acceleration.sample(),
         higherOrder:  this.higherOrder  && this.higherOrder.map(x => x.sample()),
-        accelerationField: this.accelerationField
+        accelerationField: this.accelerationField,
+        emitterElem: this.emitterElem || $("body")
       }));
     }
 

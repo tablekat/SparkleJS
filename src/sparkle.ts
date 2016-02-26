@@ -1,5 +1,5 @@
 
-export {VectorSpread, ScalarSpread, VectorSpreadArg, ScalarSpreadArg} from "./Spread";
+export {VectorSpread, ScalarSpread, VectorSpreadArg, ScalarSpreadArg, SpreadType} from "./Spread";
 export {Vector2} from "./Vector2";
 export {ParticleSystemArgs} from "./particleSystem";
 export {Emitter} from "./emitter";

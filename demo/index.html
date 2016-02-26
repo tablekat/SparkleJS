@@ -18,13 +18,18 @@
       padding: 0;
       margin: 0;
     }
-    #sprinkler, #orbit{
+    #sprinkler, #orbit, #spread{
       display: inline-block;
+    }
+    #content{
+      background: white;
+      z-index: 5 !important;
     }
   </style>
 
 </head>
 <body>
+  <div id="backgroundAnimBind"></div>
 
   <div id="content" class="container">
 
@@ -40,6 +45,8 @@
 
         <div id="sprinkler">sprinkler</div>
 
+        <br/><br/><br/><br/><br/><br/><br/><br/>
+
       </div>
       <div class="col-sm-4">
 
@@ -51,6 +58,19 @@
 
         <button id="wow" class="btn btn-primary">wow</button>
 
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-sm-4">
+        <div id="spread">[ &nbsp; spread &nbsp; ]</div>
+        <br/>
+        <button id="showSpread" class="btn btn-primary">Show spread</button>
+      </div>
+      <div class="col-sm-4">
+      </div>
+      <div class="col-sm-4">
       </div>
     </div>
 
@@ -105,6 +125,62 @@
 
       }).start();
     });
+
+    //////////////////////// row 2 ////////////////////////
+    var emitter4 = null;
+    $("#showSpread").click(function(){
+      if(emitter4){
+        emitter4.stop();
+        emitter4 = null;
+        $(this).text("Show spread");
+        return;
+      }
+      $(this).text("Stop spread");
+      emitter4 = new Sparkle.Emitter($("#spread"), {
+        rate: 33, //100,
+        maxParticles: 500,
+
+        maxLife: {
+          value: 20,
+          spread: 0.5
+        },
+
+        position: {
+          value: new Sparkle.Vector2(0, 0),
+          spread: new Sparkle.Vector2(80, 20),
+          type: Sparkle.SpreadType.Uniform
+        },
+
+        // higher order derivatives
+        higherOrder: [
+          null,
+          //new Sparkle.Vector2(0, 0.00001)
+        ]
+
+      }).start();
+    });
+
+    //////////////////////// background ////////////////////////
+    var emitter0 = new Sparkle.Emitter($("#backgroundAnimBind"), {
+        rate: 33, //100,
+        maxParticles: 100,
+
+        maxLife: {
+          value: 2,
+          spread: 0.5
+        },
+
+        position: {
+          value: new Sparkle.Vector2(0, 0),
+          spread: new Sparkle.Vector2(1000, 0),
+          type: Sparkle.SpreadType.RectUniform
+        },
+
+        // higher order derivatives
+        gravity: new Sparkle.Vector2(0, 0.1)
+
+      }).start();
+      emitter0.domElem.css("z-index", "2");
 
   </script>
 

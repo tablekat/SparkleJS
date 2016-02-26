@@ -2,8 +2,9 @@
 import {Vector2} from "./Vector2";
 
 export enum SpreadType{
-  Uniform,
-  Normal // Gaussian
+  Uniform, // Ellipse
+  Normal,  // Ellipse, Gaussian
+  RectUniform // Rectangular
 }
 
 export interface VectorSpreadArg{
@@ -29,16 +30,23 @@ export class VectorSpread implements VectorSpreadArg{
     }
   }
 
-  sample(): Vector2{
-    var randR, randTh;
-    randTh = Math.PI * 2 * Math.random();
-    if(this.type == SpreadType.Uniform){
-      randR = Math.random();
+  sample(){
+    if(this.type == SpreadType.RectUniform){
+      var randX = (2 * Math.random() - 1) * this.spread.x;
+      var randY = (2 * Math.random() - 1) * this.spread.y;
+      var randV = new Vector2(randX, randY);
+      return randV.add(this.value);
     }else{
-      randR = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
+      var randR, randTh;
+      randTh = Math.PI * 2 * Math.random();
+      if(this.type == SpreadType.Uniform){
+        randR = Math.random();
+      }else{
+        randR = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
+      }
+      var randV = Vector2.fromPolar(randR, randTh);
+      return randV.hadamard(this.spread).add(this.value);
     }
-    var randV = Vector2.fromPolar(randR, randTh);
-    return randV.hadamard(this.spread).add(this.value);
   }
 
   add(spr: VectorSpread){

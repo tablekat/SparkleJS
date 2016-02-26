@@ -26,8 +26,8 @@ Emitter options: ((((((((( OLD !!!!!!!! )))))))))
   radius: number,
   boxShadow: "0px 0px 3px rgba(...)",
   image: url,
-  elem: domElement,
-  elementFactory: function () -> domElement,
+  elem: parentElement,
+  elementFactory: function () -> parentElement,
   scale: number || { value: number, spread: number }
 }*/
 
@@ -44,14 +44,23 @@ export interface EmitterArgs extends ParticleSystemArgs{
 export class Emitter{
 
   particleSystem: ParticleSystem;
+  parentElem: any;
   domElem: any;
   rate: number;
   private interval: any;
   onEmitterDeath: () => any;
 
-  constructor(domElem: any, args: EmitterArgs){
+  constructor(parentElem: any, args: EmitterArgs){
+    this.domElem = $("<div></div>")
+      .addClass("sparkle-emitter")
+      .css("position", "absolute")
+      .css("top", "0px")
+      .css("left", "0px");
+    $("body").append(this.domElem);
+
+    args.emitterElem = this.domElem;
     this.particleSystem = new ParticleSystem(args);
-    this.domElem = domElem;
+    this.parentElem = parentElem;
     this.rate = args.rate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
   }
@@ -68,52 +77,17 @@ export class Emitter{
 
   update(){
     var dt = this.rate / 1000; // dt is in seconds
-    var offset = this.domElem.offset();
-    var offsetX = offset.left + this.domElem.outerWidth() / 2;
-    var offsetY = offset.top + this.domElem.outerHeight() / 2;
+    var offset = this.parentElem.offset();
+    var offsetX = offset.left + this.parentElem.outerWidth() / 2;
+    var offsetY = offset.top + this.parentElem.outerHeight() / 2;
 
     this.particleSystem.update(dt, offsetX, offsetY);
 
     if(!this.particleSystem.alive){
       this.stop();
+      this.domElem.remove();
       if(typeof this.onEmitterDeath === "function") this.onEmitterDeath();
     }
   }
 
 }
-
-/*Emitter.prototype.elementFactory = function(){
-  /*if(this.customElementFactory && typeof(this.customElementFactory) === "function"){
-    this.customElementFactory = elementFactory;
-  }else if(this.elem && typeof(this.elem) === "object"){
-    this.elem = elem;
-  }else{
-
-    var elem = document.createElementById("div");
-    elem.style.position = "absolute";
-    elem.style.left = this.position.x;
-    elem.style.top = this.position.y;
-
-    if(typeof(color) !== "object") color = {};
-    if(typeof(color.r) !== "number") color.r = 255;
-    if(typeof(color.g) !== "number") color.g = 255;
-    if(typeof(color.b) !== "number") color.b = 255;
-    if(typeof(color.a) !== "number") color.a = 1;
-    this.color = color;
-    elem.style.background = "rgba(" + color.r + "," + color.g + "," + color.b + "," + color.a + ")";
-
-    if(!boxShadow) boxShadow = "none";
-    this.boxShadow = boxShadow;
-    elem.style.boxShadow = boxShadow;
-
-    if(typeof(radius) !== "number") radius = 10;
-    this.radius = radius;
-    elem.style.borderRadius = (radius / 2) + "px";
-    elem.style.width = radius + "px";
-    elem.style.height = radius + "px";
-
-    //document.getElementsByTagName("body")[0].appendChild(elem);
-    this.elem = elem;
-
-  }
-}*/

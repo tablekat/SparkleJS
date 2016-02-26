@@ -4,6 +4,7 @@ import {ScalarSpread, VectorSpread, ScalarSpreadArg} from "./Spread";
 
 export interface ParticleArgs{
   maxLife?: number;
+  emitterElem?: any;
 
   position: Vector2;
   velocity?: Vector2;
@@ -27,9 +28,11 @@ export class Particle{
   life: number;
   alive: boolean;
   elem: any;
+  emitterElem: any;
   // TODO: Rotation!!
 
   constructor(args: ParticleArgs){
+    this.emitterElem = args.emitterElem || $("body");
     this.accelerationField = args.accelerationField;
     this.position = args.position ? args.position.clone() : new Vector2();
     this.velocity = args.velocity ? args.velocity.clone() : new Vector2()
@@ -81,7 +84,7 @@ export class Particle{
 
   updateByTaylor(dt: number){
     var del = null;
-    for(var i = this.higherOrder.length - 1; i >= 0; ++i){
+    for(var i = this.higherOrder.length - 1; i >= 0; --i){
       if(del){
         this.higherOrder[i].add(del);
       }
@@ -107,7 +110,7 @@ export class Particle{
     this.blendModeElement(elem);
 
     // TODO: z-index!!
-    $("body").append(elem);
+    this.emitterElem.append(elem);
 
     this.elem = elem;
   }
