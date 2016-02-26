@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Sparkle.js</title>
+
+  <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <script src="../dist/sparkle.js"></script>
+
+  <script>
+
+  </script>
+  <style>
+    html,body{
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="content" class="container">
+
+    <div class="jumbotron">
+      <h1>Sparkle.js</h1>
+      <p>Particle effects for your DOM elements!</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-4">
+
+        <p>Sparkles runneth over</p>
+
+        <div id="sprinkler">sprinkler</div>
+
+      </div>
+      <div class="col-sm-4">
+
+
+        <div id="orbit">orbit</div>
+
+      </div>
+      <div class="col-sm-4">
+
+        <button id="wow" class="btn btn-primary">wow</button>
+
+      </div>
+    </div>
+
+
+    <br/><br/>
+
+  </div>
+
+  <script>
+    Sparkle.sparkle($("#sprinkler"));
+
+    var emitter2 = new Sparkle.Emitter($("#orbit"), {
+      rate: 100,
+      maxParticles: 100,
+
+      maxLife: {
+        value: 1,
+        spread: 0.5
+      },
+
+      position: {
+        value: new Sparkle.Vector2(0, 20),
+        spread: new Sparkle.Vector2(10, 10)
+      },
+
+      accelerationField: function(vec){
+        var x = vec.x, y = vec.y;
+        return new Sparkle.VectorSpread(new Sparkle.Vector2(x / 10, y / 10));
+      }
+
+    }).start();
+
+    $("#wow").click(function(){
+      var emitter3 = new Sparkle.Emitter($("#wow"), {
+        rate: 16,
+        maxParticles: 100,
+        emitterMaxLife: 0.5,
+        onEmitterDeath: function(){ console.log("emitter3 died."); },
+
+        maxLife: {
+          value: 1,
+          spread: 0.5
+        },
+
+        velocity: {
+          spread: new Sparkle.Vector2(20, 20)
+        }
+
+      }).start();
+    });
+
+  </script>
+
+</body>
+</html>

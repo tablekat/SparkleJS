@@ -1,0 +1,15 @@
+{
+  "name": "sparklejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/sparkle.js",
+  "devDependencies": {
+    "browserify": "latest"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify src/sparkle.js --s Sparkle -o dist/sparkle.js -d"
+  },
+  "author": "Kathy Hill",
+  "license": "ISC"
+}
