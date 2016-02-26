@@ -55,7 +55,7 @@ export class Particle{
     this.life += dt;
     if(this.maxLife <= this.life){
       this.alive = false;
-      this.elem.remove();
+      this.elem && this.elem.remove();
       this.elem = null;
     }
 
@@ -96,21 +96,61 @@ export class Particle{
     this.position.add(this.velocity);
   }
 
-  createElement(){
+  private createElement(){
     var elem = $("<div></div>");
     elem.css("position", "absolute");
 
-    // Circle: // TODO!!! Scale spread for particles!!
-    elem
-      .css("width", "5px")
-      .css("height", "5px")
-      .css("border-radius", "5px")
-      .css("background", "red")
-      // TODO: z-index!!
+    //this.circleElement(elem);
+    this.dustElement(elem);
+    //this.fireElement(elem);
 
+    this.blendModeElement(elem);
+
+    // TODO: z-index!!
     $("body").append(elem);
 
     this.elem = elem;
+  }
+
+  private circleElement(elem){
+    var radius = 2.5;
+    elem
+      .css("width", (2 * radius) + "px")
+      .css("height", (2 * radius) + "px")
+      .css("border-radius", (2 * radius) + "px")
+      .css("background", "red")
+  }
+
+  private dustElement(elem){
+    var color = { r: 0, g: 0, b: 0 };
+    var ccolor = "rgba(0, 0, 0, 1)";
+    var radius = 3.5;
+    elem
+      .css("width", (2 * radius) + "px")
+      .css("height", (2 * radius) + "px")
+      .css("border-radius", (2 * radius) + "px")
+      .css("background", "red")
+      .css("background", "radial-gradient(ellipse at center, " + ccolor + " 0%,rgba(0,0,0,0) 70%)");
+  }
+  private fireElement(elem){
+    var radius = 9; //5;
+    elem
+      .css("width", (2 * radius) + "px")
+      .css("height", (2 * radius) + "px")
+      .css("border-radius", (2 * radius) + "px")
+      .css("background", "red")
+      // Note! The gradient is inside of a circle in a square. the gradient at "100%" is at the corner of the square, which is way outside the circle! 70.7%
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f9f931+0,fc2f2f+31,f43933+70&1+0,0.62+31,0+70 */
+      .css("background", "radial-gradient(ellipse at center, rgba(249,249,49,1) 0%,rgba(252,47,47,0.62) 31%,rgba(244,57,51,0) 70%)");
+  }
+
+  private blendModeElement(elem){
+    // https://css-tricks.com/basics-css-blend-modes/
+    elem
+      .css("background-blend-mode", "multiply");
+      //.css("background-blend-mode", "screen");
+      //.css("background-blend-mode", "lighten"); // better...
+      //.css("background-blend-mode", "exclusion");
   }
 
 }

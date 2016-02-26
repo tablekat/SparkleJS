@@ -18,6 +18,9 @@
       padding: 0;
       margin: 0;
     }
+    #sprinkler, #orbit{
+      display: inline-block;
+    }
   </style>
 
 </head>
@@ -60,22 +63,26 @@
     Sparkle.sparkle($("#sprinkler"));
 
     var emitter2 = new Sparkle.Emitter($("#orbit"), {
-      rate: 100,
+      rate: 33, //100,
       maxParticles: 100,
 
       maxLife: {
-        value: 1,
+        value: 3,
         spread: 0.5
       },
 
       position: {
-        value: new Sparkle.Vector2(0, 20),
-        spread: new Sparkle.Vector2(10, 10)
+        value: new Sparkle.Vector2(50, 0),
+        spread: new Sparkle.Vector2(20, 0)
       },
 
+      velocity: new Sparkle.Vector2(0, -5),
+
       accelerationField: function(vec){
-        var x = vec.x, y = vec.y;
-        return new Sparkle.VectorSpread(new Sparkle.Vector2(x / 10, y / 10));
+        var forceBar = 1000 / vec.lengthSq();
+        var direction = new Sparkle.Vector2(0, 0).minus(vec).normalize();
+        var force = direction.mult(forceBar);
+        return new Sparkle.VectorSpread(force);
       }
 
     }).start();

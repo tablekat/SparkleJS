@@ -23,9 +23,9 @@ export class VectorSpread implements VectorSpreadArg{
       this.spread = spread || new Vector2(0, 0);
       this.type = spreadType || SpreadType.Normal;
     }else{
-      this.value = value.value || new Vector2(0, 0);
-      this.spread = value.spread || new Vector2(0, 0);
-      this.type = value.type || SpreadType.Normal;
+      this.value = (<VectorSpreadArg>value).value || new Vector2(0, 0);
+      this.spread = (<VectorSpreadArg>value).spread || new Vector2(0, 0);
+      this.type = (<VectorSpreadArg>value).type || SpreadType.Normal;
     }
   }
 

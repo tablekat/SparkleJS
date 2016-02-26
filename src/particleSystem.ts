@@ -25,6 +25,7 @@ export interface ParticleSystemArgs{
   // - accelerationField
   // - allow position spread to be over an element's size... maybe just figure that manually in the emitter when making a particleSystem!
   // - get proper z-index for new particles!!! Needs to be below parent element maybe? MAYBE ABOVE!? WHO KNOWS!!
+  // - particle fade out?
 }
 
 export class ParticleSystem{

@@ -37,11 +37,23 @@ export class Vector2{
     this.y += v.y;
     return this;
   }
+  plus(v: Vector2): Vector2{
+    var v2 = this.clone();
+    v2.x += v.x;
+    v2.y += v.y;
+    return v2;
+  }
 
-  minus(v: Vector2){
+  subtract(v: Vector2){
     this.x -= v.x;
     this.y -= v.y;
     return this;
+  }
+  minus(v: Vector2): Vector2{
+    var v2 = this.clone();
+    v2.x -= v.x;
+    v2.y -= v.y;
+    return v2;
   }
 
   mult(x: number|Vector2, y?: number){
@@ -49,8 +61,8 @@ export class Vector2{
       this.x *= x.x;
       this.y *= x.y;
     }else{
-      this.x *= x;
-      this.y *= typeof y === "number" ? y : x;
+      this.x *= <number>x;
+      this.y *= typeof y === "number" ? y : <number>x;
     }
     return this;
   }
@@ -74,6 +86,13 @@ export class Vector2{
   }
 
   dist(v: Vector2){
-    return Math.sqrt(this.x * v.x + this.y * v.y);
+    return new Vector2(this.x - v.x, this.y - v.y).length();
+  }
+
+  normalize(){
+    var length = this.length();
+    this.x /= length;
+    this.y /= length;
+    return this;
   }
 }

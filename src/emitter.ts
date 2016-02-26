@@ -69,7 +69,11 @@ export class Emitter{
   update(){
     var dt = this.rate / 1000; // dt is in seconds
     var offset = this.domElem.offset();
-    this.particleSystem.update(dt, offset.left, offset.top);
+    var offsetX = offset.left + this.domElem.outerWidth() / 2;
+    var offsetY = offset.top + this.domElem.outerHeight() / 2;
+
+    this.particleSystem.update(dt, offsetX, offsetY);
+
     if(!this.particleSystem.alive){
       this.stop();
       if(typeof this.onEmitterDeath === "function") this.onEmitterDeath();
