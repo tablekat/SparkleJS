@@ -74,7 +74,7 @@ export class Particle{
 
     this.elem = null;
     this.newElement();
-    this.updateElement(-100, -100); // off screen
+    this.updateElement(-3000, -3000); // off screen
   }
 
   update(dt: number){
@@ -184,7 +184,8 @@ export class Particle{
     }else{
       this.createElement();
     }
-    this.emitterElem.append(this.elem);
+    //this.emitterElem.append(this.elem);
+    this.emitterElem.prepend(this.elem);
   }
 
   private createElement(){

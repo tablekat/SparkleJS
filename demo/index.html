@@ -199,7 +199,6 @@
           type: Sparkle.SpreadType.Uniform //RectUniform
         },
 
-        // higher order derivatives
         gravity: new Sparkle.Vector2(0, -0.1),
         velocity: {
           value: new Sparkle.Vector2(-5, -4),
@@ -214,7 +213,7 @@
             force = Math.pow(vec.x, 2) / 10000; // tornado effect 2... but with dist squared force
             force *= -vec.x / Math.abs(vec.x);
           }else{
-            force = Math.pow(vec.x, 2) / 1000000; // tornado effect 2... but with dist squared force
+            force = Math.pow(vec.x, 2) / 1000000;
             force *= -vec.x / Math.abs(vec.x);
           }
 
