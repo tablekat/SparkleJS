@@ -5,15 +5,20 @@ import {ScalarSpread, VectorSpread, ScalarSpreadArg} from "./Spread";
 export interface ParticleArgs{
   maxLife?: number;
   emitterElem?: any;
+  emitterRate?: number;
 
   position: Vector2;
   velocity?: Vector2;
   acceleration?: Vector2;
   higherOrder?: Vector2[];
   accelerationField?: (Vector2) => VectorSpread;
-  // TODO: element type, circle, sprite, etc!!~!~!!!!
-  // TODO: scale (spread chosen in the particle system)
-  // TODO: roation (spread chosen in particle system)
+
+  elemFactory?: () => any;
+
+  scale?: number;
+  rotation?: number;
+  rotationVelocity?: number;
+  opacity?: number | [{ value: number, life: number }] | ((life: number) => number);
 }
 
 export class Particle{
@@ -29,11 +34,28 @@ export class Particle{
   alive: boolean;
   elem: any;
   emitterElem: any;
-  // TODO: Rotation!!
+  emitterRate: number;
+
+  elemFactory: () => any;
+
+  scale: number;
+  rotation: number;
+  rotationVelocity: number;
+  opacityNumber: number;
+  opacityArray: [{ value: number, life: number }];
+  opacityFunction: ((life: number) => number);
 
   constructor(args: ParticleArgs){
     this.emitterElem = args.emitterElem || $("body");
     this.accelerationField = args.accelerationField;
+    this.elemFactory = args.elemFactory;
+    this.emitterRate = args.emitterRate || 16;
+
+    this.scale = args.scale || 1;
+    this.rotation = args.rotation || 0;
+    this.rotationVelocity = args.rotationVelocity || 0;
+    this.setupOpacity(args.opacity);
+
     this.position = args.position ? args.position.clone() : new Vector2();
     this.velocity = args.velocity ? args.velocity.clone() : new Vector2()
     this.acceleration = args.acceleration ? args.acceleration.clone() : new Vector2()
@@ -51,7 +73,8 @@ export class Particle{
     this.alive = true;
 
     this.elem = null;
-    this.createElement();
+    this.newElement();
+    this.updateElement(-100, -100); // off screen
   }
 
   update(dt: number){
@@ -67,13 +90,17 @@ export class Particle{
     }else{
       this.updateByTaylor(dt);
     }
+    this.rotation += this.rotationVelocity; // * dt... TODO
   }
 
   updateElement(offsetX: number, offsetY: number){
     if(!this.alive || !this.elem) return;
     // TODO: transform so the center is in the middle?
-    this.elem.css("left", this.position.x + offsetX);
-    this.elem.css("top", this.position.y + offsetY);
+    this.elem
+      .css("left", this.position.x + offsetX + "px")
+      .css("top", this.position.y + offsetY + "px")
+      .css("opacity", this.currentOpacity());
+    this.elem.css("transform", "translate(-50%, -50%) rotate(" + Math.floor(this.rotation) + "deg) scale(" + this.scale + ")");
   }
 
   updateByField(dt: number){
@@ -99,6 +126,67 @@ export class Particle{
     this.position.add(this.velocity);
   }
 
+  currentLife(){
+    return this.life / this.maxLife;
+  }
+
+  private setupOpacity(opacity){
+    if(typeof opacity == "number"){
+      this.opacityNumber = opacity;
+    }else if(Array.isArray(opacity)){
+      opacity.sort((a, b) => a.life - b.life);
+      this.opacityArray = opacity;
+    }else if(typeof opacity == "function"){
+      this.opacityFunction = opacity;
+    }else{
+      this.opacityNumber = 1;
+    }
+  }
+
+  private currentOpacity(){
+    if(Array.isArray(this.opacityArray)){
+      var life = this.currentLife();
+      var prev = null, next = null;
+
+      for(var i=0; i < this.opacityArray.length; ++i){
+        var op = this.opacityArray[i];
+        if(op.life <= life) prev = op;
+        else if(!next) next = op;
+      }
+      if(prev && next){
+        var dLife = next.life - prev.life;
+        var dOpacity = next.value - prev.value;
+        var amountInto = life - prev.life;
+        var percentAcross = amountInto / dLife;
+        var opacityOffset = percentAcross * dOpacity;
+        return opacityOffset + prev.value;
+      }else if(prev){
+        return prev.value;
+      }else if(next){
+        return next.value;
+      }else{
+        return 1;
+      }
+
+    }else if(typeof this.opacityFunction == "function"){
+      var life = this.currentLife();
+      return this.opacityFunction(life);
+    }else if(typeof this.opacityNumber == "number"){
+      return this.opacityNumber;
+    }else{
+      return 1;
+    }
+  }
+
+  private newElement(){
+    if(this.elemFactory){
+      this.elem = this.elemFactory();
+    }else{
+      this.createElement();
+    }
+    this.emitterElem.append(this.elem);
+  }
+
   private createElement(){
     var elem = $("<div></div>");
     elem.css("position", "absolute");
@@ -110,7 +198,6 @@ export class Particle{
     this.blendModeElement(elem);
 
     // TODO: z-index!!
-    this.emitterElem.append(elem);
 
     this.elem = elem;
   }

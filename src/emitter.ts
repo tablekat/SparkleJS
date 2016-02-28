@@ -39,6 +39,7 @@ import {ParticleSystem, ParticleSystemArgs} from "./particleSystem";
 export interface EmitterArgs extends ParticleSystemArgs{
   rate?: number;
   onEmitterDeath?: () => any;
+  zIndex?: number;
 }
 
 export class Emitter{
@@ -49,6 +50,8 @@ export class Emitter{
   rate: number;
   private interval: any;
   onEmitterDeath: () => any;
+  zIndex: number|string;
+  private updateLock = false;
 
   constructor(parentElem: any, args: EmitterArgs){
     this.domElem = $("<div></div>")
@@ -56,13 +59,17 @@ export class Emitter{
       .css("position", "absolute")
       .css("top", "0px")
       .css("left", "0px");
+    if(typeof args.zIndex === "number") this.domElem.css("z-index", args.zIndex);
     $("body").append(this.domElem);
 
     args.emitterElem = this.domElem;
+    args.emitterRate = args.rate || 16;
+
     this.particleSystem = new ParticleSystem(args);
     this.parentElem = parentElem;
     this.rate = args.rate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
+    this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
   }
 
   start(){
@@ -76,6 +83,9 @@ export class Emitter{
   }
 
   update(){
+    if(this.updateLock) return;
+    this.updateLock = true;
+
     var dt = this.rate / 1000; // dt is in seconds
     var offset = this.parentElem.offset();
     var offsetX = offset.left + this.parentElem.outerWidth() / 2;
@@ -88,6 +98,8 @@ export class Emitter{
       this.domElem.remove();
       if(typeof this.onEmitterDeath === "function") this.onEmitterDeath();
     }
+
+    this.updateLock = false;
   }
 
 }

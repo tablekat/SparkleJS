@@ -17,13 +17,21 @@
       height: 100%;
       padding: 0;
       margin: 0;
+      background: #dedede;
+      overflow-x: hidden;
     }
     #sprinkler, #orbit, #spread{
       display: inline-block;
     }
     #content{
-      background: white;
+      background: #dedede;
       z-index: 5 !important;
+    }
+    #backgroundAnimBind{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 400px;
     }
   </style>
 
@@ -56,7 +64,7 @@
       </div>
       <div class="col-sm-4">
 
-        <button id="wow" class="btn btn-primary">wow</button>
+        <button id="wow" class="btn btn-primary" style="z-index: 20;">wow</button>
 
       </div>
     </div>
@@ -69,6 +77,7 @@
         <button id="showSpread" class="btn btn-primary">Show spread</button>
       </div>
       <div class="col-sm-4">
+        <button id="showSpread" class="btn btn-primary" onclick="smokeAccelEffect = (smokeAccelEffect + 1) % 3;">Toggle smoke effect</button>
       </div>
       <div class="col-sm-4">
       </div>
@@ -80,6 +89,7 @@
   </div>
 
   <script>
+    var smokeAccelEffect = 0;
     Sparkle.sparkle($("#sprinkler"));
 
     var emitter2 = new Sparkle.Emitter($("#orbit"), {
@@ -110,18 +120,31 @@
     $("#wow").click(function(){
       var emitter3 = new Sparkle.Emitter($("#wow"), {
         rate: 16,
-        maxParticles: 100,
+        maxParticles: 1000,
         emitterMaxLife: 0.5,
         onEmitterDeath: function(){ console.log("emitter3 died."); },
 
         maxLife: {
-          value: 1,
-          spread: 0.5
+          value: 0.1,
+          spread: 0.01
         },
 
         velocity: {
-          spread: new Sparkle.Vector2(20, 20)
-        }
+          //spread: new Sparkle.Vector2(20, 20)
+          custom: function(){
+            var r = 5 + Math.random() * 10;
+            var th = Math.random() * 2 * Math.PI;
+            return Sparkle.Vector2.fromPolar(r, th);
+          }
+        },
+
+        opacity: [
+          { life: 0, value: 1 },
+          { life: 0.5, value: 1 },
+          { life: 1, value: 0 },
+        ],
+
+        zIndex: 6,
 
       }).start();
     });
@@ -163,7 +186,7 @@
     //////////////////////// background ////////////////////////
     var emitter0 = new Sparkle.Emitter($("#backgroundAnimBind"), {
         rate: 33, //100,
-        maxParticles: 100,
+        maxParticles: 400,
 
         maxLife: {
           value: 2,
@@ -172,12 +195,51 @@
 
         position: {
           value: new Sparkle.Vector2(0, 0),
-          spread: new Sparkle.Vector2(1000, 0),
-          type: Sparkle.SpreadType.RectUniform
+          spread: new Sparkle.Vector2(200, 0),
+          type: Sparkle.SpreadType.Uniform //RectUniform
         },
 
         // higher order derivatives
-        gravity: new Sparkle.Vector2(0, 0.1)
+        gravity: new Sparkle.Vector2(0, -0.1),
+        velocity: {
+          value: new Sparkle.Vector2(-5, -4),
+          spread: new Sparkle.Vector2(5, 3)
+        },
+
+        accelerationField: function(vec){
+          var force;
+          if(smokeAccelEffect == 1){
+            force = -vec.x / 100; // tornado effect!
+          }else if(smokeAccelEffect == 2){
+            force = Math.pow(vec.x, 2) / 10000; // tornado effect 2... but with dist squared force
+            force *= -vec.x / Math.abs(vec.x);
+          }else{
+            force = Math.pow(vec.x, 2) / 1000000; // tornado effect 2... but with dist squared force
+            force *= -vec.x / Math.abs(vec.x);
+          }
+
+          return new Sparkle.VectorSpread(new Sparkle.Vector2(force, 0));
+        },
+
+        rotation: {
+          value: 0,
+          spread: 180 // -180 .. 180
+        },
+
+        opacity: [
+          { value: 1, life: 0 },
+          { value: 0.75, life: 0.75},
+          { value: 0, life: 1 }
+        ],
+
+        particleElemFactory: function(){
+          var elem = $("<div></div>");
+
+          elem.append($("<img src='img/Smoke2.png' width='48px' height='48px'/>"));
+          elem.css("position", "fixed");
+
+          return elem;
+        }
 
       }).start();
       emitter0.domElem.css("z-index", "2");

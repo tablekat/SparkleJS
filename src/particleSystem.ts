@@ -8,6 +8,7 @@ export interface ParticleSystemArgs{
   emitterMaxLife?: number;
   maxParticles: number;
   emitterElem?: any;
+  emitterRate?: number;
 
   position?: Vector2 | VectorSpreadArg;
   velocity?: Vector2 | VectorSpreadArg;
@@ -17,16 +18,22 @@ export interface ParticleSystemArgs{
 
   accelerationField?: (Vector2) => VectorSpread; // As apposed to a force field, which would require mass to calculate the acceleration
 
+  particleElemFactory?: () => any;
+
+  scale?: number | ScalarSpreadArg;
+  rotation?: number | ScalarSpreadArg;
+  rotationVelocity?: number | ScalarSpreadArg;
+
+  // Opacity options:
+  // number/ScalarSpreadArg: solid opacity for entire duration until particle disappears
+  // Array: life is number 0-1, when life span reaches that percent of life, begin scaling between value's at a gradient
+  // function: given life percent (0-1), get opacity
+  opacity?: number | ScalarSpreadArg | [{ value: number, life: number }] | ((life: number) => number);
+
   // TODO:
   // - colors?
-  // - rotation velocity and spread
-  // - rotation and spread
-  // - scale and spread
   // - creation rate!?
-  // - accelerationField
   // - allow position spread to be over an element's size... maybe just figure that manually in the emitter when making a particleSystem!
-  // - get proper z-index for new particles!!! Needs to be below parent element maybe? MAYBE ABOVE!? WHO KNOWS!!
-  // - particle fade out?
 }
 
 export class ParticleSystem{
@@ -40,6 +47,7 @@ export class ParticleSystem{
   dying: boolean = false;
   alive: boolean = true;
   emitterElem: any;
+  emitterRate: number;
 
   position: VectorSpread;
   velocity: VectorSpread;
@@ -47,6 +55,13 @@ export class ParticleSystem{
   higherOrder: VectorSpread[];
 
   accelerationField: (Vector2) => VectorSpread;
+
+  particleElemFactory: () => any;
+
+  scale: ScalarSpread;
+  rotation: ScalarSpread;
+  rotationVelocity: ScalarSpread;
+  opacity: ScalarSpread | [{ value: number, life: number }] | ((life: number) => number);
 
   particles: Particle[];
 
@@ -58,8 +73,19 @@ export class ParticleSystem{
     this.maxParticles = args.maxParticles || 100;
     this.emitterMaxLife = args.emitterMaxLife ? args.emitterMaxLife : null;
     this.emitterElem = args.emitterElem || $("body");
+    this.emitterRate = args.emitterRate || 16; // physics tick-rate
 
     this.accelerationField = args.accelerationField;
+    this.particleElemFactory = args.particleElemFactory;
+
+    this.scale = new ScalarSpread(args.scale);
+    this.rotation = new ScalarSpread(args.rotation);
+    this.rotationVelocity = new ScalarSpread(args.rotationVelocity);
+    if(typeof args.opacity === "number" || ScalarSpread.isArg(args.opacity)){
+      this.opacity = new ScalarSpread(args.opacity);
+    }else{
+      this.opacity = <ScalarSpread>args.opacity; // This is actaully the array or function case, but supress the typescript error
+    }
 
     this.position = new VectorSpread(args.position);
     this.velocity = new VectorSpread(args.velocity);
@@ -96,21 +122,46 @@ export class ParticleSystem{
       newParticles.push(p);
     }
 
-    // TODO: This shouldn't be like this. It shouldn't be able to only make 1 particle a tick.
-    var cycleDuration = this.maxLife.value * this.maxParticles;
+    // cycleDuration should maybe be an option, but for now just read the "maxParticles" option as "number of particles emitted per 5 seconds"... i think
+    var cycleDuration = 5; //this.maxLife.value * this.maxParticles; // in seconds (commented thing is wrong becuase that averages out to 1 particle a tick for all values...)
+    var cycleTicks = cycleDuration / (this.emitterRate / 1000); // emitterRate :: milliseconds / tick
+    var newParticlesPerTick = this.maxParticles / cycleTicks;
+    if(Math.random() < (newParticlesPerTick - Math.floor(newParticlesPerTick))){
+      newParticlesPerTick = Math.ceil(newParticlesPerTick);
+    }else{
+      newParticlesPerTick = Math.floor(newParticlesPerTick);
+    }
+
     if(!this.dying && newParticles.length < this.maxParticles){
-      newParticles.push(new Particle({
-        maxLife:                           this.maxLife.sample(),
-        position:                          this.position.sample(),
-        velocity:     this.velocity     && this.velocity.sample(),
-        acceleration: this.acceleration && this.acceleration.sample(),
-        higherOrder:  this.higherOrder  && this.higherOrder.map(x => x.sample()),
-        accelerationField: this.accelerationField,
-        emitterElem: this.emitterElem || $("body")
-      }));
+      for(var i=0; i < newParticlesPerTick; ++i){
+        newParticles.push(this.createParticle());
+      }
     }
 
     this.particles = newParticles;
 
+  }
+
+  private createParticle(){
+    return new Particle({
+      maxLife:                           this.maxLife.sample(),
+
+      position:                          this.position.sample(),
+      velocity:     this.velocity     && this.velocity.sample(),
+      acceleration: this.acceleration && this.acceleration.sample(),
+      higherOrder:  this.higherOrder  && this.higherOrder.map(x => x.sample()),
+      accelerationField: this.accelerationField,
+
+      emitterElem: this.emitterElem || $("body"),
+      elemFactory: this.particleElemFactory,
+
+      scale: this.scale.sample(),
+      rotation: this.rotation.sample(),
+      rotationVelocity: this.rotationVelocity.sample(),
+      opacity: (this.opacity instanceof ScalarSpread) ?
+        (<ScalarSpread>this.opacity).sample() :
+        (<[{ value: number, life: number }] | ((life: number) => number)>this.opacity), // Okay this is really getting annoying, typescript
+
+    });
   }
 }
