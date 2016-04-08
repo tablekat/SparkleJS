@@ -46,7 +46,8 @@ export class Emitter{
 
   particleSystem: ParticleSystem;
   parentElem: any;
-  domElem: any;
+  canvas: any;
+  ctx: any;
   rate: number;
   private interval: any;
   onEmitterDeath: () => any;
@@ -54,16 +55,11 @@ export class Emitter{
   private updateLock = false;
 
   constructor(parentElem: any, args: EmitterArgs){
-    this.domElem = $("<div></div>")
-      .addClass("sparkle-emitter")
-      .css("position", "absolute")
-      .css("top", "0px")
-      .css("left", "0px");
-    if(typeof args.zIndex === "number") this.domElem.css("z-index", args.zIndex);
-    $("body").append(this.domElem);
+    this.makeElement(args);
 
-    args.emitterElem = this.domElem;
-    args.emitterRate = args.rate || 16;
+    args.canvas = this.canvas;
+    //args.ctx = this.ctx;
+    args.tickRate = args.rate || 16;
 
     this.particleSystem = new ParticleSystem(args);
     this.parentElem = parentElem;
@@ -72,8 +68,23 @@ export class Emitter{
     this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
   }
 
+  makeElement(args: EmitterArgs){
+    this.canvas = $("<canvas></canvas>")
+      .addClass("sparkle-emitter")
+      .css({
+        "position": "absolute",
+        "top": "0px",
+        "left": "0px",
+        "pointer-events": "none"
+      });
+    if(typeof args.zIndex === "number") this.canvas.css("z-index", args.zIndex);
+    $("body").append(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+  }
+
   start(){
     this.interval = setInterval(() => this.update(), this.rate);
+    this.render();
     return this;
   }
 
@@ -87,19 +98,27 @@ export class Emitter{
     this.updateLock = true;
 
     var dt = this.rate / 1000; // dt is in seconds
-    var offset = this.parentElem.offset();
-    var offsetX = offset.left + this.parentElem.outerWidth() / 2;
-    var offsetY = offset.top + this.parentElem.outerHeight() / 2;
 
-    this.particleSystem.update(dt, offsetX, offsetY);
+    this.particleSystem.update(dt);
 
     if(!this.particleSystem.alive){
       this.stop();
-      this.domElem.remove();
+      $(this.canvas).remove();
       if(typeof this.onEmitterDeath === "function") this.onEmitterDeath();
     }
 
     this.updateLock = false;
+  }
+
+  render(){
+    if(!this.particleSystem.alive) return;
+
+    var offset = this.parentElem.offset();
+    var offsetX = offset.left + this.parentElem.outerWidth() / 2;
+    var offsetY = offset.top + this.parentElem.outerHeight() / 2;
+    this.particleSystem.render(this.ctx, offsetX, offsetY);
+
+    requestAnimationFrame(() => this.render());
   }
 
 }

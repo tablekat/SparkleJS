@@ -7,8 +7,10 @@ export interface ParticleSystemArgs{
   maxLife?: number | ScalarSpreadArg;
   emitterMaxLife?: number;
   maxParticles: number;
-  emitterElem?: any;
-  emitterRate?: number;
+  emitRate: number; // particles per second on average
+  canvas?: any;
+  ctx?: any;
+  tickRate?: number;
 
   position?: Vector2 | VectorSpreadArg;
   velocity?: Vector2 | VectorSpreadArg;
@@ -19,6 +21,7 @@ export interface ParticleSystemArgs{
   accelerationField?: (Vector2) => VectorSpread; // As apposed to a force field, which would require mass to calculate the acceleration
 
   particleElemFactory?: () => any;
+  sprite: any;
 
   scale?: number | ScalarSpreadArg;
   rotation?: number | ScalarSpreadArg;
@@ -32,7 +35,6 @@ export interface ParticleSystemArgs{
 
   // TODO:
   // - colors?
-  // - creation rate!?
   // - allow position spread to be over an element's size... maybe just figure that manually in the emitter when making a particleSystem!
 }
 
@@ -43,11 +45,13 @@ export class ParticleSystem{
   private lastParticleAdded: number = 0;
   maxLife: ScalarSpread;
   maxParticles: number;
+  emitRate: number; // particles per tick on average
   emitterMaxLife: number;
   dying: boolean = false;
   alive: boolean = true;
-  emitterElem: any;
-  emitterRate: number;
+  canvas: any;
+  ctx: any;
+  tickRate: number;
 
   position: VectorSpread;
   velocity: VectorSpread;
@@ -57,6 +61,7 @@ export class ParticleSystem{
   accelerationField: (Vector2) => VectorSpread;
 
   particleElemFactory: () => any;
+  sprite: any;
 
   scale: ScalarSpread;
   rotation: ScalarSpread;
@@ -72,8 +77,9 @@ export class ParticleSystem{
     this.maxLife = args.maxLife ? new ScalarSpread(args.maxLife) : new ScalarSpread(5);
     this.maxParticles = args.maxParticles || 100;
     this.emitterMaxLife = args.emitterMaxLife ? args.emitterMaxLife : null;
-    this.emitterElem = args.emitterElem || $("body");
-    this.emitterRate = args.emitterRate || 16; // physics tick-rate
+    this.canvas = args.canvas;
+    this.ctx = args.ctx;
+    this.tickRate = args.tickRate || 16; // physics tick-rate
 
     this.accelerationField = args.accelerationField;
     this.particleElemFactory = args.particleElemFactory;
@@ -100,7 +106,7 @@ export class ParticleSystem{
     }
   }
 
-  update(dt: number, offsetX: number, offsetY: number){
+  update(dt: number){
     this.life += dt;
     if(!this.alive) return;
     if(this.dying && this.particles.length == 0){
@@ -118,19 +124,20 @@ export class ParticleSystem{
       p.update(dt);
 
       if(!p.alive) continue;
-      p.updateElement(offsetX, offsetY);
+      //p.updateElement(offsetX, offsetY);
       newParticles.push(p);
     }
 
     // cycleDuration should maybe be an option, but for now just read the "maxParticles" option as "number of particles emitted per 5 seconds"... i think
     var cycleDuration = 5; //this.maxLife.value * this.maxParticles; // in seconds (commented thing is wrong becuase that averages out to 1 particle a tick for all values...)
-    var cycleTicks = cycleDuration / (this.emitterRate / 1000); // emitterRate :: milliseconds / tick
+    var cycleTicks = cycleDuration / (this.tickRate / 1000); // tickRate :: milliseconds / tick
     var newParticlesPerTick = this.maxParticles / cycleTicks;
     if(Math.random() < (newParticlesPerTick - Math.floor(newParticlesPerTick))){
       newParticlesPerTick = Math.ceil(newParticlesPerTick);
     }else{
       newParticlesPerTick = Math.floor(newParticlesPerTick);
     }
+    this.emitRate // :: particles / tick
 
     if(!this.dying && newParticles.length < this.maxParticles){
       for(var i=0; i < newParticlesPerTick; ++i){
@@ -140,6 +147,14 @@ export class ParticleSystem{
 
     this.particles = newParticles;
 
+  }
+
+  render(ctx: any, offsetX: number, offsetY: number){
+
+  }
+
+  sampleSprite(){
+    // todo: return either the only sprite, or a randomly sampled sprite from an array, or weighted by some method.
   }
 
   private createParticle(){
@@ -152,8 +167,9 @@ export class ParticleSystem{
       higherOrder:  this.higherOrder  && this.higherOrder.map(x => x.sample()),
       accelerationField: this.accelerationField,
 
-      emitterElem: this.emitterElem || $("body"),
+      //ctx: this.ctx,
       elemFactory: this.particleElemFactory,
+      sprite: this.sprite, // todo: sampleSprite() here.
 
       scale: this.scale.sample(),
       rotation: this.rotation.sample(),

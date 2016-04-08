@@ -4,8 +4,8 @@ import {ScalarSpread, VectorSpread, ScalarSpreadArg} from "./Spread";
 
 export interface ParticleArgs{
   maxLife?: number;
-  emitterElem?: any;
-  emitterRate?: number;
+  //ctx?: any;
+  tickRate?: number;
 
   position: Vector2;
   velocity?: Vector2;
@@ -14,6 +14,7 @@ export interface ParticleArgs{
   accelerationField?: (Vector2) => VectorSpread;
 
   elemFactory?: () => any;
+  sprite: any;
 
   scale?: number;
   rotation?: number;
@@ -33,10 +34,11 @@ export class Particle{
   life: number;
   alive: boolean;
   elem: any;
-  emitterElem: any;
-  emitterRate: number;
+  //ctx: any;
+  tickRate: number;
 
-  elemFactory: () => any;
+  elemFactory: () => any; //deprec
+  sprite: any;
 
   scale: number;
   rotation: number;
@@ -46,10 +48,11 @@ export class Particle{
   opacityFunction: ((life: number) => number);
 
   constructor(args: ParticleArgs){
-    this.emitterElem = args.emitterElem || $("body");
+    //this.ctx = args.ctx;
     this.accelerationField = args.accelerationField;
     this.elemFactory = args.elemFactory;
-    this.emitterRate = args.emitterRate || 16;
+    this.tickRate = args.tickRate || 16;
+    this.sprite = args.sprite;
 
     this.scale = args.scale || 1;
     this.rotation = args.rotation || 0;
@@ -185,7 +188,7 @@ export class Particle{
       this.createElement();
     }
     //this.emitterElem.append(this.elem);
-    this.emitterElem.prepend(this.elem);
+    //this.emitterElem.prepend(this.elem);
   }
 
   private createElement(){
@@ -242,6 +245,20 @@ export class Particle{
       //.css("background-blend-mode", "screen");
       //.css("background-blend-mode", "lighten"); // better...
       //.css("background-blend-mode", "exclusion");
+  }
+
+  public render(ctx: any, offsetX: number, offsetY: number){
+    ctx.save();
+
+    ctx.translate(this.position.x + offsetX, this.position.y + offsetY);
+
+    var width = this.sprite.width || 1;
+    var height = this.sprite.height || 1;
+    ctx.translate(this.scale * width / 2, this.scale * height / 2);
+    ctx.rotate(this.rotation);
+    ctx.drawImage(this.sprite, -this.scale * width / 2, -this.scale * height / 2);
+
+    ctx.restore();
   }
 
 }

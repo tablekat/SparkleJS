@@ -190,7 +190,7 @@ var Emitter = (function () {
             this.domElem.css("z-index", args.zIndex);
         $("body").append(this.domElem);
         args.emitterElem = this.domElem;
-        args.emitterRate = args.rate || 16;
+        args.tickRate = args.rate || 16;
         this.particleSystem = new particleSystem_1.ParticleSystem(args);
         this.parentElem = parentElem;
         this.rate = args.rate || 16;
@@ -234,7 +234,7 @@ var Particle = (function () {
         this.emitterElem = args.emitterElem || $("body");
         this.accelerationField = args.accelerationField;
         this.elemFactory = args.elemFactory;
-        this.emitterRate = args.emitterRate || 16;
+        this.tickRate = args.tickRate || 16;
         this.scale = args.scale || 1;
         this.rotation = args.rotation || 0;
         this.rotationVelocity = args.rotationVelocity || 0;
@@ -423,7 +423,7 @@ var ParticleSystem = (function () {
         this.maxParticles = args.maxParticles || 100;
         this.emitterMaxLife = args.emitterMaxLife ? args.emitterMaxLife : null;
         this.emitterElem = args.emitterElem || $("body");
-        this.emitterRate = args.emitterRate || 16;
+        this.tickRate = args.tickRate || 16;
         this.accelerationField = args.accelerationField;
         this.particleElemFactory = args.particleElemFactory;
         this.scale = new Spread_1.ScalarSpread(args.scale);
@@ -468,7 +468,7 @@ var ParticleSystem = (function () {
             newParticles.push(p);
         }
         var cycleDuration = 5;
-        var cycleTicks = cycleDuration / (this.emitterRate / 1000);
+        var cycleTicks = cycleDuration / (this.tickRate / 1000);
         var newParticlesPerTick = this.maxParticles / cycleTicks;
         if (Math.random() < (newParticlesPerTick - Math.floor(newParticlesPerTick))) {
             newParticlesPerTick = Math.ceil(newParticlesPerTick);
