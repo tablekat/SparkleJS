@@ -92,9 +92,21 @@
     var smokeAccelEffect = 0;
     Sparkle.sparkle($("#sprinkler"));
 
+    // Todo: Sprite class with prebuild canvases for simple images
+    var sprite = $("<canvas></canvas>")[0];
+    sprite.width = 16;
+    sprite.height = 16;
+    var ctx = sprite.getContext('2d');
+    ctx.beginPath();
+    ctx.arc(8, 8, 8, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'red';
+    ctx.fill();
+
     var emitter2 = new Sparkle.Emitter($("#orbit"), {
-      rate: 33, //100,
+      tickRate: 33, //100,
       maxParticles: 100,
+      emitRate: 1,
+      sprite: sprite,
 
       maxLife: {
         value: 3,
@@ -119,8 +131,10 @@
 
     $("#wow").click(function(){
       var emitter3 = new Sparkle.Emitter($("#wow"), {
-        rate: 16,
+        tickRate: 16,
         maxParticles: 1000,
+        emitRate: 1,
+        sprite: sprite,
         emitterMaxLife: 0.5,
         onEmitterDeath: function(){ console.log("emitter3 died."); },
 
@@ -162,6 +176,8 @@
       emitter4 = new Sparkle.Emitter($("#spread"), {
         rate: 33, //100,
         maxParticles: 500,
+        emitRate: 1,
+        sprite: sprite,
 
         maxLife: {
           value: 20,
@@ -187,6 +203,8 @@
     var emitter0 = new Sparkle.Emitter($("#backgroundAnimBind"), {
         rate: 33, //100,
         maxParticles: 400,
+        emitRate: 1,
+        sprite: sprite,
 
         maxLife: {
           value: 2,
@@ -231,7 +249,7 @@
           { value: 0, life: 1 }
         ],
 
-        particleElemFactory: function(){
+        particleElemFactory: function(){ // deprec
           var elem = $("<div></div>");
 
           elem.append($("<img src='img/Smoke2.png' width='48px' height='48px'/>"));
@@ -241,7 +259,7 @@
         }
 
       }).start();
-      emitter0.domElem.css("z-index", "2");
+      //emitter0.domElem.css("z-index", "2"); // todo: fix stuff 
 
   </script>
 

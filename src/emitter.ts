@@ -37,7 +37,7 @@ import {VectorSpread, VectorSpreadArg, ScalarSpreadArg, ScalarSpread} from "./Sp
 import {ParticleSystem, ParticleSystemArgs} from "./particleSystem";
 
 export interface EmitterArgs extends ParticleSystemArgs{
-  rate?: number;
+  tickRate?: number;
   onEmitterDeath?: () => any;
   zIndex?: number;
 }
@@ -48,7 +48,7 @@ export class Emitter{
   parentElem: any;
   canvas: any;
   ctx: any;
-  rate: number;
+  tickRate: number;
   private interval: any;
   onEmitterDeath: () => any;
   zIndex: number|string;
@@ -58,12 +58,11 @@ export class Emitter{
     this.makeElement(args);
 
     args.canvas = this.canvas;
-    //args.ctx = this.ctx;
-    args.tickRate = args.rate || 16;
+    args.tickRate = args.tickRate || 16;
 
     this.particleSystem = new ParticleSystem(args);
     this.parentElem = parentElem;
-    this.rate = args.rate || 16;
+    this.tickRate = args.tickRate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
     this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
   }
@@ -79,11 +78,11 @@ export class Emitter{
       });
     if(typeof args.zIndex === "number") this.canvas.css("z-index", args.zIndex);
     $("body").append(this.canvas);
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas[0].getContext('2d');
   }
 
   start(){
-    this.interval = setInterval(() => this.update(), this.rate);
+    this.interval = setInterval(() => this.update(), this.tickRate);
     this.render();
     return this;
   }
@@ -97,7 +96,7 @@ export class Emitter{
     if(this.updateLock) return;
     this.updateLock = true;
 
-    var dt = this.rate / 1000; // dt is in seconds
+    var dt = this.tickRate / 1000; // dt is in seconds
 
     this.particleSystem.update(dt);
 

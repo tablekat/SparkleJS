@@ -128,16 +128,12 @@ export class ParticleSystem{
       newParticles.push(p);
     }
 
-    // cycleDuration should maybe be an option, but for now just read the "maxParticles" option as "number of particles emitted per 5 seconds"... i think
-    var cycleDuration = 5; //this.maxLife.value * this.maxParticles; // in seconds (commented thing is wrong becuase that averages out to 1 particle a tick for all values...)
-    var cycleTicks = cycleDuration / (this.tickRate / 1000); // tickRate :: milliseconds / tick
-    var newParticlesPerTick = this.maxParticles / cycleTicks;
+    var newParticlesPerTick = this.emitRate;
     if(Math.random() < (newParticlesPerTick - Math.floor(newParticlesPerTick))){
       newParticlesPerTick = Math.ceil(newParticlesPerTick);
     }else{
       newParticlesPerTick = Math.floor(newParticlesPerTick);
     }
-    this.emitRate // :: particles / tick
 
     if(!this.dying && newParticles.length < this.maxParticles){
       for(var i=0; i < newParticlesPerTick; ++i){
@@ -150,7 +146,10 @@ export class ParticleSystem{
   }
 
   render(ctx: any, offsetX: number, offsetY: number){
-
+    for(var i=0; i < this.particles.length; ++i){
+      var p = this.particles[i];
+      p.render(ctx, offsetX, offsetY);
+    }
   }
 
   sampleSprite(){
@@ -167,7 +166,6 @@ export class ParticleSystem{
       higherOrder:  this.higherOrder  && this.higherOrder.map(x => x.sample()),
       accelerationField: this.accelerationField,
 
-      //ctx: this.ctx,
       elemFactory: this.particleElemFactory,
       sprite: this.sprite, // todo: sampleSprite() here.
 
