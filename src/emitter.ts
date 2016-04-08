@@ -74,11 +74,18 @@ export class Emitter{
         "position": "absolute",
         "top": "0px",
         "left": "0px",
+        "width": "100%",
+        "height": "100%",
         "pointer-events": "none"
       });
     if(typeof args.zIndex === "number") this.canvas.css("z-index", args.zIndex);
     $("body").append(this.canvas);
     this.ctx = this.canvas[0].getContext('2d');
+  }
+
+  resizeCanvas(){
+    this.canvas[0].width = window.outerWidth;
+    this.canvas[0].height = window.outerHeight; //todo: support scrolling
   }
 
   start(){
@@ -112,7 +119,7 @@ export class Emitter{
   render(){
     if(!this.particleSystem.alive) return;
 
-    var offset = this.parentElem.offset();
+    var offset = this.parentElem.offset(); // todo: I shouldn't really do it like this maybe...
     var offsetX = offset.left + this.parentElem.outerWidth() / 2;
     var offsetY = offset.top + this.parentElem.outerHeight() / 2;
     this.particleSystem.render(this.ctx, offsetX, offsetY);
