@@ -15,7 +15,7 @@ export class Vector2{
   }
 
   copy(v?: Vector2){
-    if(v && v.x && v.y){
+    if(v && typeof v.x == "number" && typeof v.y == "number"){
       v.x = this.x;
       v.y = this.y;
       return this;

@@ -40,8 +40,7 @@ export interface EmitterArgs extends ParticleSystemArgs{
   tickRate?: number;
   onEmitterDeath?: () => any;
   zIndex?: number;
-  x: number;
-  y: number;
+  // bind to elem: left, top left, center, etc
 }
 
 export class Emitter{
@@ -55,8 +54,6 @@ export class Emitter{
   onEmitterDeath: () => any;
   zIndex: number|string;
   private updateLock = false;
-  x: number;
-  y: number;
 
   constructor(args: EmitterArgs){
     this.makeElement(args);
@@ -65,8 +62,6 @@ export class Emitter{
     args.tickRate = args.tickRate || 16;
 
     this.particleSystem = new ParticleSystem(args);
-    this.x = args.x;
-    this.y = args.y;
     this.tickRate = args.tickRate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
     this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
