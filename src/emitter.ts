@@ -40,6 +40,8 @@ export interface EmitterArgs extends ParticleSystemArgs{
   tickRate?: number;
   onEmitterDeath?: () => any;
   zIndex?: number;
+  x: number;
+  y: number;
 }
 
 export class Emitter{
@@ -53,18 +55,23 @@ export class Emitter{
   onEmitterDeath: () => any;
   zIndex: number|string;
   private updateLock = false;
+  x: number;
+  y: number;
 
-  constructor(parentElem: any, args: EmitterArgs){
+  constructor(args: EmitterArgs){
     this.makeElement(args);
 
     args.canvas = this.canvas;
     args.tickRate = args.tickRate || 16;
 
     this.particleSystem = new ParticleSystem(args);
-    this.parentElem = parentElem;
+    this.x = args.x;
+    this.y = args.y;
     this.tickRate = args.tickRate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
     this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
+
+    $(window).resize(() => this.resizeCanvas());
   }
 
   makeElement(args: EmitterArgs){
@@ -81,11 +88,13 @@ export class Emitter{
     if(typeof args.zIndex === "number") this.canvas.css("z-index", args.zIndex);
     $("body").append(this.canvas);
     this.ctx = this.canvas[0].getContext('2d');
+
+    this.resizeCanvas();
   }
 
   resizeCanvas(){
-    this.canvas[0].width = window.outerWidth;
-    this.canvas[0].height = window.outerHeight; //todo: support scrolling
+    this.canvas[0].width = window.innerWidth;
+    this.canvas[0].height = window.innerHeight; //todo: support scrolling
   }
 
   start(){
@@ -118,6 +127,8 @@ export class Emitter{
 
   render(){
     if(!this.particleSystem.alive) return;
+
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
     var offset = this.parentElem.offset(); // todo: I shouldn't really do it like this maybe...
     var offsetX = offset.left + this.parentElem.outerWidth() / 2;

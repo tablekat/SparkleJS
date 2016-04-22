@@ -76,8 +76,8 @@ export class Particle{
     this.alive = true;
 
     this.elem = null;
-    this.newElement();
-    this.updateElement(-3000, -3000); // off screen
+    //this.newElement();
+    //this.updateElement(-3000, -3000); // off screen
   }
 
   update(dt: number){
@@ -255,8 +255,8 @@ export class Particle{
     var width = this.sprite.width || 1;
     var height = this.sprite.height || 1;
     ctx.translate(this.scale * width / 2, this.scale * height / 2);
-    ctx.rotate(this.rotation);
-    ctx.globalAlpha = this.currentOpacity();
+    //ctx.rotate(this.rotation);
+    //ctx.globalAlpha = this.currentOpacity();
 
     ctx.drawImage(this.sprite, -this.scale * width / 2, -this.scale * height / 2);
 

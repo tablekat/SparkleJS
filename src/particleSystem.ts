@@ -76,6 +76,7 @@ export class ParticleSystem{
 
     this.maxLife = args.maxLife ? new ScalarSpread(args.maxLife) : new ScalarSpread(5);
     this.maxParticles = args.maxParticles || 100;
+    this.emitRate = args.emitRate || 0.1;
     this.emitterMaxLife = args.emitterMaxLife ? args.emitterMaxLife : null;
     this.canvas = args.canvas;
     this.ctx = args.ctx;
@@ -83,6 +84,7 @@ export class ParticleSystem{
 
     this.accelerationField = args.accelerationField;
     this.particleElemFactory = args.particleElemFactory;
+    this.sprite = args.sprite;
 
     this.scale = new ScalarSpread(args.scale);
     this.rotation = new ScalarSpread(args.rotation);
@@ -130,7 +132,7 @@ export class ParticleSystem{
 
     var newParticlesPerTick = this.emitRate;
     if(Math.random() < (newParticlesPerTick - Math.floor(newParticlesPerTick))){
-      newParticlesPerTick = Math.ceil(newParticlesPerTick);
+      newParticlesPerTick = Math.floor(newParticlesPerTick) + 1;
     }else{
       newParticlesPerTick = Math.floor(newParticlesPerTick);
     }
