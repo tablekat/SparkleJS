@@ -2,9 +2,11 @@
 import {Vector2} from "./Vector2";
 
 export enum SpreadType{
-  Uniform, // Ellipse
-  Normal,  // Ellipse, Gaussian
-  RectUniform // Rectangular
+  Uniform,     // Ellipse
+  Normal,      // Ellipse, Gaussian
+  RectUniform  // Rectangular
+  // TODO: Disk
+  // TODO: Border
 }
 
 export interface VectorSpreadArg{
@@ -24,12 +26,13 @@ export class VectorSpread implements VectorSpreadArg{
     if(value instanceof Vector2 || !value){
       this.value = <Vector2>value || new Vector2(0, 0);
       this.spread = spread || new Vector2(0, 0);
-      this.type = spreadType || SpreadType.Normal;
+      this.type = typeof spreadType == "number" ? spreadType : SpreadType.Normal;
       this.custom = null;
     }else{
       this.value = (<VectorSpreadArg>value).value || new Vector2(0, 0);
       this.spread = (<VectorSpreadArg>value).spread || new Vector2(0, 0);
-      this.type = (<VectorSpreadArg>value).type || SpreadType.Normal;
+      this.type = (<VectorSpreadArg>value).type;
+      if(typeof this.type != "number") this.type = SpreadType.Normal;
       this.custom = (<VectorSpreadArg>value).custom || null;
     }
   }
@@ -47,7 +50,7 @@ export class VectorSpread implements VectorSpreadArg{
       var randR, randTh;
       randTh = Math.PI * 2 * Math.random();
       if(this.type == SpreadType.Uniform){
-        randR = Math.random();
+        randR = 2 * Math.random() - 1;
       }else{
         randR = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
       }
@@ -79,7 +82,7 @@ export class ScalarSpread implements ScalarSpreadArg{
     if(typeof value == "number" || !value){
       this.value = <number>value || 0;
       this.spread = spread || 0;
-      this.type = spreadType || SpreadType.Normal;
+      this.type = typeof spreadType == "number" ? spreadType : SpreadType.Normal;
       this.custom = null;
     }else{
       this.value = (<ScalarSpreadArg>value).value;
@@ -91,7 +94,7 @@ export class ScalarSpread implements ScalarSpreadArg{
 
   static isArg(obj){
     return obj &&
-      (typeof obj.value == "number" ||
+      (typeof obj.value  == "number" ||
        typeof obj.spread == "number" ||
        typeof obj.custom == "function");
   }
@@ -102,7 +105,7 @@ export class ScalarSpread implements ScalarSpreadArg{
     }
     var randR;
     if(this.type == SpreadType.Uniform || this.type == SpreadType.RectUniform){
-      randR = Math.random();
+      randR = 2 * Math.random() - 1;
     }else{
       randR = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
     }
