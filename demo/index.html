@@ -103,11 +103,13 @@
     ctx.fillStyle = 'red';
     ctx.fill();
 
-    var emitter2 = new Sparkle.Emitter($("#orbit"), {
+    var emitter2 = new Sparkle.Emitter({
+      attach: $("#orbit"),
+
       tickRate: 33, //100,
       maxParticles: 100,
       emitRate: 1,
-      sprite: sprite,
+      sprite: Sparkle.sprite("dust"),
 
       maxLife: {
         value: 3,
@@ -131,23 +133,24 @@
     }).start();
 
     $("#wow").click(function(){
-      var emitter3 = new Sparkle.Emitter($("#wow"), {
+      var emitter3 = new Sparkle.Emitter({
+        attach: $("#wow"),
         tickRate: 16,
         maxParticles: 1000,
         emitRate: 1,
-        sprite: sprite,
+        sprite: Sparkle.sprite("rainbowdust"),
         emitterMaxLife: 0.5,
         onEmitterDeath: function(){ console.log("emitter3 died."); },
 
         maxLife: {
-          value: 0.1,
+          value: 0.3,
           spread: 0.01
         },
 
         velocity: {
           //spread: new Sparkle.Vector2(20, 20)
           custom: function(){
-            var r = 5 + Math.random() * 10;
+            var r = 5 + Math.random() * 4;
             var th = Math.random() * 2 * Math.PI;
             return Sparkle.Vector2.fromPolar(r, th);
           }
@@ -174,11 +177,13 @@
         return;
       }
       $(this).text("Stop spread");
-      emitter4 = new Sparkle.Emitter($("#spread"), {
+      emitter4 = new Sparkle.Emitter({
+        attach: $("#spread"),
+
         rate: 33, //100,
         maxParticles: 500,
         emitRate: 1,
-        sprite: sprite,
+        sprite: Sparkle.sprite("dust"),
 
         maxLife: {
           value: 20,
@@ -201,11 +206,17 @@
     });
 
     //////////////////////// background ////////////////////////
-    var emitter0 = new Sparkle.Emitter($("#backgroundAnimBind"), {
+
+    var smokeSprite = new Image();
+    smokeSprite.src = 'img/Smoke2.png';
+
+    var emitter0 = new Sparkle.Emitter({
+        attach: $("#backgroundAnimBind"),
+
         rate: 33, //100,
         maxParticles: 400,
         emitRate: 1,
-        sprite: sprite,
+        sprite: smokeSprite,
 
         maxLife: {
           value: 2,
@@ -244,20 +255,13 @@
           spread: 180 // -180 .. 180
         },
 
+        scale: 0.2,
+
         opacity: [
           { value: 1, life: 0 },
           { value: 0.75, life: 0.75},
           { value: 0, life: 1 }
         ],
-
-        particleElemFactory: function(){ // deprec
-          var elem = $("<div></div>");
-
-          elem.append($("<img src='img/Smoke2.png' width='48px' height='48px'/>"));
-          elem.css("position", "fixed");
-
-          return elem;
-        }
 
       }).start();
       //emitter0.domElem.css("z-index", "2"); // todo: fix stuff

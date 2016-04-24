@@ -255,10 +255,10 @@ export class Particle{
     var width = this.sprite.width || 1;
     var height = this.sprite.height || 1;
     ctx.translate(this.scale * width / 2, this.scale * height / 2);
-    //ctx.rotate(this.rotation);
-    //ctx.globalAlpha = this.currentOpacity();
+    ctx.rotate(this.rotation);
+    ctx.globalAlpha = this.currentOpacity();
 
-    ctx.drawImage(this.sprite, -this.scale * width / 2, -this.scale * height / 2);
+    ctx.drawImage(this.sprite, -this.scale * width / 2, -this.scale * height / 2, this.scale * width, this.scale * height);
 
     ctx.globalAlpha = 1;
     ctx.restore();

@@ -155,7 +155,14 @@ export class ParticleSystem{
   }
 
   sampleSprite(){
-    // todo: return either the only sprite, or a randomly sampled sprite from an array, or weighted by some method.
+    if(typeof this.sprite == "function"){
+      return this.sprite();
+    }else if(Array.isArray(this.sprite)){
+      var i = Math.floor(Math.random() * this.sprite.length);
+      return this.sprite[i];
+    }else{
+      return this.sprite;
+    }
   }
 
   private createParticle(){
@@ -169,7 +176,7 @@ export class ParticleSystem{
       accelerationField: this.accelerationField,
 
       elemFactory: this.particleElemFactory,
-      sprite: this.sprite, // todo: sampleSprite() here.
+      sprite: this.sampleSprite(),
 
       scale: this.scale.sample(),
       rotation: this.rotation.sample(),

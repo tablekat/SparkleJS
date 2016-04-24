@@ -40,7 +40,8 @@ export interface EmitterArgs extends ParticleSystemArgs{
   tickRate?: number;
   onEmitterDeath?: () => any;
   zIndex?: number;
-  // bind to elem: left, top left, center, etc
+  attach?: any;
+  attachTo?: string; // bind to elem: left, top left, center, etc
 }
 
 export class Emitter{
@@ -65,6 +66,7 @@ export class Emitter{
     this.tickRate = args.tickRate || 16;
     this.onEmitterDeath = args.onEmitterDeath;
     this.zIndex = typeof args.zIndex === "number" ? args.zIndex : "auto";
+    this.parentElem = args.attach;
 
     $(window).resize(() => this.resizeCanvas());
   }

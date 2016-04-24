@@ -2,11 +2,11 @@
 import {Vector2} from "./Vector2";
 
 export enum SpreadType{
-  Uniform,     // Ellipse
-  Normal,      // Ellipse, Gaussian
-  RectUniform  // Rectangular
-  // TODO: Disk
-  // TODO: Border
+  Uniform,      // Solid Ellipse
+  Normal,       // Solid Ellipse, Gaussian
+  RectUniform,  // Solid Rectangular
+  Circle,       // Edge of Ellipse
+  BoxBorder     // Edge of Rectangle
 }
 
 export interface VectorSpreadArg{
@@ -46,11 +46,24 @@ export class VectorSpread implements VectorSpreadArg{
       var randY = (2 * Math.random() - 1) * this.spread.y;
       var randV = new Vector2(randX, randY);
       return randV.add(this.value);
+    }else if(this.type == SpreadType.BoxBorder){
+      // TODO...
+      var w = this.spread.x * 2;
+      var h = this.spread.y * 2;
+      var peri = 2 * w + 2 * h;
+      var periPos = Math.random() * peri;
+      // .... TODO continue above
+      var randX = (2 * Math.random() - 1) * this.spread.x;
+      var randY = (2 * Math.random() - 1) * this.spread.y;
+      var randV = new Vector2(randX, randY);
+      return randV.add(this.value);
     }else{
       var randR, randTh;
       randTh = Math.PI * 2 * Math.random();
       if(this.type == SpreadType.Uniform){
         randR = 2 * Math.random() - 1;
+      }else if(this.type == SpreadType.Circle){
+        randR = 1;
       }else{
         randR = ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
       }
